@@ -203,3 +203,15 @@ def test_runs_must_be_positive():
     """--runs < 1 is rejected."""
     with pytest.raises(SystemExit):
         parse_args(["--runs", "0"])
+
+
+def test_html_format_inferred_from_output_suffix():
+    """--output with .html implies html format."""
+    args = parse_args(["--output", "report.html"])
+    assert args.format == "html"
+
+
+def test_html_format_explicit():
+    """--format html is accepted."""
+    args = parse_args(["--format", "html"])
+    assert args.format == "html"

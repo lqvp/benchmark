@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import csv
 import enum
+import html
 import io
 import json
 import os
@@ -147,7 +148,7 @@ DEFAULT_TEMPERATURE = 0.3
 DEFAULT_RUNS = 1
 DEFAULT_FORMAT = "json"
 DEFAULT_PROMPTS_COUNT = len(DEFAULT_PROMPTS)
-OUTPUT_FORMATS = ("json", "csv", "markdown")
+OUTPUT_FORMATS = ("json", "csv", "markdown", "html")
 
 DEFAULT_MODELS = [
     "glm-5.2-fp8",
@@ -791,6 +792,276 @@ def write_markdown_output(
     path.write_text("\n".join(lines), encoding="utf-8")
 
 
+def _html_value(value: Any) -> str:
+    if value is None:
+        return "-"
+    if isinstance(value, float):
+        return f"{value:.4f}"
+    return html.escape(str(value))
+
+
+def write_html_output(
+    path: Path,
+    aggregates: list[ModelAggregate],
+    results: list[BenchmarkResult],
+    summary: dict[str, Any],
+    comparisons: dict[str, dict[str, Any]],
+) -> None:
+    """Write a styled HTML report with summary, aggregate, and per-prompt tables."""
+
+    def row(cells: list[Any], header: bool = False) -> str:
+        tag = "th" if header else "td"
+        return "<tr>" + "".join(f"<{tag}>{_html_value(c)}</{tag}>" for c in cells) + "</tr>"
+
+    sorted_agg = sorted(
+        aggregates,
+        key=lambda a: a.median_total_time_sec if a.median_total_time_sec is not None else float("inf"),
+    )
+
+    agg_rows = "\n".join(
+        row([
+            a.model,
+            f"{a.successful_runs}/{a.total_runs}",
+            f"{a.success_rate:.1f}",
+            a.median_total_time_sec,
+            a.median_time_to_first_token_sec,
+            a.median_tokens_per_sec,
+            a.median_total_tokens_per_sec,
+            a.median_ms_per_token,
+            ",".join(a.categories_tested),
+        ])
+        for a in sorted_agg
+    )
+
+    detail_rows = "\n".join(
+        row([
+            r.model,
+            r.prompt_id,
+            r.prompt_category,
+            r.run_index,
+            "OK" if r.success else "FAIL",
+            r.total_time_sec,
+            r.time_to_first_token_sec,
+            r.tokens_per_sec,
+            r.ms_per_token,
+            r.prompt_tokens,
+            r.completion_tokens,
+            r.error_category or "",
+        ])
+        for r in sorted(results, key=lambda r: (r.model, r.prompt_id, r.run_index))
+    )
+
+    comparison_rows = ""
+    if comparisons:
+        comparison_rows = "\n".join(
+            row([
+                model,
+                comp.get("status", "missing"),
+                comp.get("median_total_time_sec_delta"),
+                comp.get("median_time_to_first_token_sec_delta"),
+                comp.get("median_tokens_per_sec_delta"),
+            ])
+            for model, comp in sorted(comparisons.items())
+        )
+
+    tps = _html_value(summary.get("median_tokens_per_sec"))
+    total = _html_value(summary.get("median_total_time_sec"))
+    tft = _html_value(summary.get("median_time_to_first_token_sec"))
+
+    html_doc = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kimchi Benchmark Results</title>
+<style>
+:root {{
+  --bg: #f7f8fa;
+  --card: #ffffff;
+  --text: #1f2328;
+  --muted: #57606a;
+  --border: #d0d7de;
+  --accent: #0969da;
+  --success: #1a7f37;
+  --danger: #cf222e;
+  --warning: #9a6700;
+}}
+body {{
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  margin: 0;
+  padding: 2rem 1rem;
+}}
+.container {{
+  max-width: 1200px;
+  margin: 0 auto;
+}}
+h1 {{
+  font-size: 1.75rem;
+  margin-bottom: 0.25rem;
+}}
+.subtitle {{
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+}}
+.summary {{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}}
+.card {{
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow: 0 1px 2px rgba(31,35,40,0.04);
+}}
+.card .label {{
+  font-size: 0.875rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}}
+.card .value {{
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
+}}
+.section {{
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+}}
+.section h2 {{
+  font-size: 1.25rem;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}}
+table {{
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}}
+th, td {{
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}}
+th {{
+  background: var(--bg);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+}}
+tr:hover td {{
+  background: #f6f8fa;
+}}
+.status-ok {{ color: var(--success); font-weight: 600; }}
+.status-fail {{ color: var(--danger); font-weight: 600; }}
+.status-improved {{ color: var(--success); font-weight: 600; }}
+.status-regressed {{ color: var(--danger); font-weight: 600; }}
+.status-unchanged {{ color: var(--muted); }}
+.status-new {{ color: var(--accent); font-weight: 600; }}
+.status-missing {{ color: var(--warning); }}
+.footer {{
+  color: var(--muted);
+  font-size: 0.875rem;
+  text-align: center;
+  margin-top: 2rem;
+}}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Kimchi Benchmark Results</h1>
+  <p class="subtitle">Generated on {html.escape(time.strftime("%Y-%m-%d %H:%M:%S %Z"))}</p>
+
+  <div class="summary">
+    <div class="card">
+      <div class="label">Models tested</div>
+      <div class="value">{summary.get('total_models', 0)}</div>
+    </div>
+    <div class="card">
+      <div class="label">Fully successful</div>
+      <div class="value">{summary.get('fully_successful', 0)}</div>
+    </div>
+    <div class="card">
+      <div class="label">Overall success rate</div>
+      <div class="value">{summary.get('success_rate_percent', 0.0):.2f}%</div>
+    </div>
+    <div class="card">
+      <div class="label">Median tok/s</div>
+      <div class="value">{tps}</div>
+    </div>
+    <div class="card">
+      <div class="label">Median total (s)</div>
+      <div class="value">{total}</div>
+    </div>
+    <div class="card">
+      <div class="label">Median TFT (s)</div>
+      <div class="value">{tft}</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Aggregated Results (median across prompts)</h2>
+    <table>
+      <thead>
+        {row(["Model", "OK/N", "SR%", "Med Total(s)", "Med TFT(s)", "Med Tok/s", "Med TotTok/s", "Med ms/tok", "Categories"], header=True)}
+      </thead>
+      <tbody>
+        {agg_rows}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Per-Prompt Results</h2>
+    <table>
+      <thead>
+        {row(["Model", "Prompt", "Category", "Run", "Status", "Total(s)", "TFT(s)", "Tok/s", "ms/tok", "In", "Out", "Error"], header=True)}
+      </thead>
+      <tbody>
+        {detail_rows}
+      </tbody>
+    </table>
+  </div>
+"""
+
+    if comparison_rows:
+        html_doc += f"""
+  <div class="section">
+    <h2>Comparison to Previous Run</h2>
+    <table>
+      <thead>
+        {row(["Model", "Status", "Total Δ", "TFT Δ", "Tok/s Δ"], header=True)}
+      </thead>
+      <tbody>
+        {comparison_rows}
+      </tbody>
+    </table>
+  </div>
+"""
+
+    html_doc += """
+  <div class="footer">
+    Generated by Kimchi Model Benchmark
+  </div>
+</div>
+</body>
+</html>
+"""
+
+    path.write_text(html_doc, encoding="utf-8")
+
+
 def write_output(
     results: list[BenchmarkResult],
     aggregates: list[ModelAggregate],
@@ -800,7 +1071,7 @@ def write_output(
     output_format: str,
     output_path: Path,
 ) -> Path:
-    suffix_map = {"json": ".json", "csv": ".csv", "markdown": ".md"}
+    suffix_map = {"json": ".json", "csv": ".csv", "markdown": ".md", "html": ".html"}
     expected_suffix = suffix_map.get(output_format, ".json")
     path = output_path if output_path.suffix.lower() == expected_suffix else output_path.with_suffix(expected_suffix)
 
@@ -810,6 +1081,8 @@ def write_output(
         write_csv_output(path, aggregates, results)
     elif output_format == "markdown":
         write_markdown_output(path, aggregates, summary)
+    elif output_format == "html":
+        write_html_output(path, aggregates, results, summary, comparisons)
     else:
         raise ValueError(f"Unsupported format: {output_format}")
     return path
@@ -853,7 +1126,14 @@ def _split_models(value: str) -> list[str]:
 
 def _infer_format(output_path: Path) -> str:
     suffix = output_path.suffix.lower()
-    return {".json": "json", ".csv": "csv", ".md": "markdown", ".markdown": "markdown"}.get(suffix, "json")
+    return {
+        ".json": "json",
+        ".csv": "csv",
+        ".md": "markdown",
+        ".markdown": "markdown",
+        ".html": "html",
+        ".htm": "html",
+    }.get(suffix, "json")
 
 
 def _load_prompts_file(path: Path) -> list[dict[str, str]]:
@@ -1023,7 +1303,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     prompts = _resolve_prompts(args)
 
-    suffix_map = {"json": ".json", "csv": ".csv", "markdown": ".md"}
+    suffix_map = {"json": ".json", "csv": ".csv", "markdown": ".md", "html": ".html"}
     expected_suffix = suffix_map[args.format]
     effective_output_path = (
         args.output if args.output.suffix.lower() == expected_suffix else args.output.with_suffix(expected_suffix)

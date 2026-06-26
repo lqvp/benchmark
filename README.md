@@ -46,9 +46,10 @@ python benchmark.py --prompts-file prompts.json
 # Tune generation settings
 python benchmark.py --max-tokens 512 --temperature 0.5
 
-# Write results as CSV or Markdown
+# Write results as CSV, Markdown, or HTML
 python benchmark.py --output results.csv --format csv
 python benchmark.py --output report.md --format markdown
+python benchmark.py --output report.html --format html
 
 # Print configuration and exit without making API calls
 python benchmark.py --dry-run --verbose
@@ -78,7 +79,7 @@ BENCHMARK_FORMAT=csv python benchmark.py
 | `-t`, `--temperature` | `0.3` | Sampling temperature |
 | `-w`, `--workers` | `4` | Number of parallel workers |
 | `-o`, `--output` | `benchmark_results` | Output base path; extension implies `--format` when omitted |
-| `--format` | inferred from output suffix | Output file format: `json`, `csv`, or `markdown` |
+| `--format` | inferred from output suffix | Output file format: `json`, `csv`, `markdown`, or `html` |
 | `--dry-run` | disabled | Print configuration and model/prompt list, then exit without API calls |
 | `-v`, `--verbose` | disabled | Print extra diagnostic information |
 | `--no-per-prompt-table` | disabled | Skip the verbose per-prompt results table |
@@ -98,7 +99,7 @@ BENCHMARK_FORMAT=csv python benchmark.py
 | `BENCHMARK_TEMPERATURE` | `0.3` | Sampling temperature |
 | `BENCHMARK_MAX_WORKERS` | `4` | Number of parallel workers |
 | `BENCHMARK_OUTPUT` | `benchmark_results` | Output base path |
-| `BENCHMARK_FORMAT` | `json` | Output file format: `json`, `csv`, or `markdown` |
+| `BENCHMARK_FORMAT` | `json` | Output file format: `json`, `csv`, `markdown`, or `html` |
 
 ## Output
 
@@ -110,6 +111,7 @@ BENCHMARK_FORMAT=csv python benchmark.py
   - `benchmark_results.json` (default)
   - `benchmark_results.csv`
   - `benchmark_results.md`
+  - `benchmark_results.html`
 
 Use `--output` to change the base path; the appropriate extension is added automatically unless the path already has one matching the selected format.
 
@@ -170,3 +172,14 @@ Two sections:
 ### Markdown
 
 A Markdown document with a summary section and a per-model aggregated results table suitable for pasting into reports or issue comments.
+
+### HTML
+
+A self-contained, styled HTML report with:
+
+- Summary cards for models tested, success rate, and median timing/throughput metrics.
+- A sort-ready aggregated results table per model.
+- A detailed per-prompt results table with run index, status, timings, token counts, and error categories.
+- A previous-run comparison table when a prior JSON results file exists.
+
+The HTML file includes inline CSS and has no external dependencies, so it can be opened directly in a browser or attached to issues and emails.

@@ -15,6 +15,7 @@ from benchmark import (
     compute_summary,
     load_previous_results,
     write_csv_output,
+    write_html_output,
     write_json_output,
     write_markdown_output,
 )
@@ -207,6 +208,28 @@ def test_write_markdown_output(tmp_path):
     assert "Tok/s" in text
     assert "ms/tok" in text
     assert "m1" in text
+
+
+def test_write_html_output(tmp_path):
+    """HTML output contains styled summary cards and aggregate/per-prompt tables."""
+    result = make_result(model="m1", total_time=10.0, time_to_first_token=2.0, completion_tokens=40)
+    compute_metrics(result)
+    agg = aggregate_model_results("m1", [result])
+    summary = compute_summary([agg])
+    comparisons = {"m1": {"status": "new"}}
+
+    path = tmp_path / "out.html"
+    write_html_output(path, [agg], [result], summary, comparisons)
+
+    text = path.read_text(encoding="utf-8")
+    assert "<!DOCTYPE html>" in text
+    assert "Kimchi Benchmark Results" in text
+    assert "Models tested" in text
+    assert "Aggregated Results" in text
+    assert "Per-Prompt Results" in text
+    assert "Comparison to Previous Run" in text
+    assert "m1" in text
+    assert "status-new" in text
 
 
 def test_load_previous_results(tmp_path):
