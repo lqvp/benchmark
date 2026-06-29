@@ -157,6 +157,7 @@ DEFAULT_MODELS = [
     "minimax-m2.7",
     "minimax-m3",
     "nemotron-3-ultra-fp4",
+    "deepseek-v4-flash"
 ]
 
 MODELS = [m.strip() for m in os.environ.get("BENCHMARK_MODELS", "").split(",") if m.strip()] or DEFAULT_MODELS
