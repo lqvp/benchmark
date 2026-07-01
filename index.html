@@ -100,6 +100,66 @@ tr:hover td {
 .status-unchanged { color: var(--muted); }
 .status-new { color: var(--accent); font-weight: 600; }
 .status-missing { color: var(--warning); }
+.chart-section h2 {
+  margin-bottom: 1rem;
+}
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 1rem;
+}
+.chart {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  min-width: 0;
+}
+.chart-title {
+  font-size: 0.95rem;
+  margin: 0 0 0.5rem;
+  color: var(--text);
+  font-weight: 600;
+}
+.chart-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.chart-label {
+  font-size: 12px;
+  fill: var(--text);
+  font-family: inherit;
+}
+.chart-value {
+  font-size: 11px;
+  fill: var(--muted);
+  font-family: inherit;
+}
+.chart-missing {
+  fill: var(--muted);
+  font-style: italic;
+}
+.chart-axis {
+  stroke: var(--border);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+.chart-bar {
+  fill: var(--accent);
+}
+.chart-bar.bar-accent { fill: var(--accent); }
+.chart-bar.bar-success { fill: var(--success); }
+.chart-bar.bar-danger { fill: var(--danger); }
+.chart-bar.bar-warning { fill: var(--warning); }
+.chart-bar.bar-muted { fill: var(--muted); }
+.chart-bar.bar-new { fill: var(--accent); opacity: 0.5; }
+.chart-bar.bar-missing { fill: var(--warning); opacity: 0.5; }
+@media (max-width: 600px) {
+  .charts-grid { grid-template-columns: 1fr; }
+  .chart-label { font-size: 10px; }
+  .chart-value { font-size: 10px; }
+}
 .footer {
   color: var(--muted);
   font-size: 0.875rem;
@@ -111,7 +171,7 @@ tr:hover td {
 <body>
 <div class="container">
   <h1>Kimchi Benchmark Results</h1>
-  <p class="subtitle">Generated on 2026-07-01 07:23:43 JST</p>
+  <p class="subtitle">Generated on 2026-07-01 07:45:31 UTC</p>
 
   <div class="summary">
     <div class="card">
@@ -120,25 +180,136 @@ tr:hover td {
     </div>
     <div class="card">
       <div class="label">Fully successful</div>
-      <div class="value">6</div>
+      <div class="value">0</div>
     </div>
     <div class="card">
       <div class="label">Overall success rate</div>
-      <div class="value">85.71%</div>
+      <div class="value">0.00%</div>
     </div>
     <div class="card">
       <div class="label">Median tok/s</div>
-      <div class="value">104.0648</div>
+      <div class="value">-</div>
     </div>
     <div class="card">
       <div class="label">Median total (s)</div>
-      <div class="value">3.0006</div>
+      <div class="value">-</div>
     </div>
     <div class="card">
       <div class="label">Median TFT (s)</div>
-      <div class="value">0.5225</div>
+      <div class="value">-</div>
     </div>
   </div>
+
+<div class="section chart-section">
+  <h2>Performance Charts</h2>
+  <div class="charts-grid">
+<div class="chart" id="chart-tokens-per-sec">
+<h3 class="chart-title">Median tokens/sec by model</h3>
+<svg class="chart-svg" viewBox="0 0 800 246" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Median tokens/sec by model">
+<text x="160" y="33.00" text-anchor="end" dominant-baseline="middle" class="chart-label">glm-5.2-fp8</text>
+<text x="176" y="33.00" dominant-baseline="middle" class="chart-value chart-missing">-</text>
+<text x="160" y="63.00" text-anchor="end" dominant-baseline="middle" class="chart-label">kimi-k2.6</text>
+<text x="176" y="63.00" dominant-baseline="middle" class="chart-value chart-missing">-</text>
+<text x="160" y="93.00" text-anchor="end" dominant-baseline="middle" class="chart-label">kimi-k2.7</text>
+<text x="176" y="93.00" dominant-baseline="middle" class="chart-value chart-missing">-</text>
+<text x="160" y="123.00" text-anchor="end" dominant-baseline="middle" class="chart-label">minimax-m2.7</text>
+<text x="176" y="123.00" dominant-baseline="middle" class="chart-value chart-missing">-</text>
+<text x="160" y="153.00" text-anchor="end" dominant-baseline="middle" class="chart-label">minimax-m3</text>
+<text x="176" y="153.00" dominant-baseline="middle" class="chart-value chart-missing">-</text>
+<text x="160" y="183.00" text-anchor="end" dominant-baseline="middle" class="chart-label">nemotron-3-ultra-fp4</text>
+<text x="176" y="183.00" dominant-baseline="middle" class="chart-value chart-missing">-</text>
+<text x="160" y="213.00" text-anchor="end" dominant-baseline="middle" class="chart-label">deepseek-v4-flash</text>
+<text x="176" y="213.00" dominant-baseline="middle" class="chart-value chart-missing">-</text>
+</svg></div>
+<div class="chart" id="chart-ttft">
+<h3 class="chart-title">Median time-to-first-token (TTFT) by model</h3>
+<svg class="chart-svg" viewBox="0 0 800 246" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Median time-to-first-token (TTFT) by model">
+<text x="160" y="33.00" text-anchor="end" dominant-baseline="middle" class="chart-label">glm-5.2-fp8</text>
+<text x="176" y="33.00" dominant-baseline="middle" class="chart-value chart-missing">-</text>
+<text x="160" y="63.00" text-anchor="end" dominant-baseline="middle" class="chart-label">kimi-k2.6</text>
+<text x="176" y="63.00" dominant-baseline="middle" class="chart-value chart-missing">-</text>
+<text x="160" y="93.00" text-anchor="end" dominant-baseline="middle" class="chart-label">kimi-k2.7</text>
+<text x="176" y="93.00" dominant-baseline="middle" class="chart-value chart-missing">-</text>
+<text x="160" y="123.00" text-anchor="end" dominant-baseline="middle" class="chart-label">minimax-m2.7</text>
+<text x="176" y="123.00" dominant-baseline="middle" class="chart-value chart-missing">-</text>
+<text x="160" y="153.00" text-anchor="end" dominant-baseline="middle" class="chart-label">minimax-m3</text>
+<text x="176" y="153.00" dominant-baseline="middle" class="chart-value chart-missing">-</text>
+<text x="160" y="183.00" text-anchor="end" dominant-baseline="middle" class="chart-label">nemotron-3-ultra-fp4</text>
+<text x="176" y="183.00" dominant-baseline="middle" class="chart-value chart-missing">-</text>
+<text x="160" y="213.00" text-anchor="end" dominant-baseline="middle" class="chart-label">deepseek-v4-flash</text>
+<text x="176" y="213.00" dominant-baseline="middle" class="chart-value chart-missing">-</text>
+</svg></div>
+<div class="chart" id="chart-total-time">
+<h3 class="chart-title">Median total time by model</h3>
+<svg class="chart-svg" viewBox="0 0 800 246" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Median total time by model">
+<text x="160" y="33.00" text-anchor="end" dominant-baseline="middle" class="chart-label">glm-5.2-fp8</text>
+<text x="176" y="33.00" dominant-baseline="middle" class="chart-value chart-missing">-</text>
+<text x="160" y="63.00" text-anchor="end" dominant-baseline="middle" class="chart-label">kimi-k2.6</text>
+<text x="176" y="63.00" dominant-baseline="middle" class="chart-value chart-missing">-</text>
+<text x="160" y="93.00" text-anchor="end" dominant-baseline="middle" class="chart-label">kimi-k2.7</text>
+<text x="176" y="93.00" dominant-baseline="middle" class="chart-value chart-missing">-</text>
+<text x="160" y="123.00" text-anchor="end" dominant-baseline="middle" class="chart-label">minimax-m2.7</text>
+<text x="176" y="123.00" dominant-baseline="middle" class="chart-value chart-missing">-</text>
+<text x="160" y="153.00" text-anchor="end" dominant-baseline="middle" class="chart-label">minimax-m3</text>
+<text x="176" y="153.00" dominant-baseline="middle" class="chart-value chart-missing">-</text>
+<text x="160" y="183.00" text-anchor="end" dominant-baseline="middle" class="chart-label">nemotron-3-ultra-fp4</text>
+<text x="176" y="183.00" dominant-baseline="middle" class="chart-value chart-missing">-</text>
+<text x="160" y="213.00" text-anchor="end" dominant-baseline="middle" class="chart-label">deepseek-v4-flash</text>
+<text x="176" y="213.00" dominant-baseline="middle" class="chart-value chart-missing">-</text>
+</svg></div>
+<div class="chart" id="chart-success-rate">
+<h3 class="chart-title">Success rate by model</h3>
+<svg class="chart-svg" viewBox="0 0 800 246" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Success rate by model">
+<text x="160" y="33.00" text-anchor="end" dominant-baseline="middle" class="chart-label">glm-5.2-fp8</text>
+<rect x="172" y="23.00" width="1.00" height="20" rx="3" ry="3" class="chart-bar bar-success"></rect>
+<text x="179.00" y="33.00" dominant-baseline="middle" class="chart-value">0.0 %</text>
+<text x="160" y="63.00" text-anchor="end" dominant-baseline="middle" class="chart-label">kimi-k2.6</text>
+<rect x="172" y="53.00" width="1.00" height="20" rx="3" ry="3" class="chart-bar bar-success"></rect>
+<text x="179.00" y="63.00" dominant-baseline="middle" class="chart-value">0.0 %</text>
+<text x="160" y="93.00" text-anchor="end" dominant-baseline="middle" class="chart-label">kimi-k2.7</text>
+<rect x="172" y="83.00" width="1.00" height="20" rx="3" ry="3" class="chart-bar bar-success"></rect>
+<text x="179.00" y="93.00" dominant-baseline="middle" class="chart-value">0.0 %</text>
+<text x="160" y="123.00" text-anchor="end" dominant-baseline="middle" class="chart-label">minimax-m2.7</text>
+<rect x="172" y="113.00" width="1.00" height="20" rx="3" ry="3" class="chart-bar bar-success"></rect>
+<text x="179.00" y="123.00" dominant-baseline="middle" class="chart-value">0.0 %</text>
+<text x="160" y="153.00" text-anchor="end" dominant-baseline="middle" class="chart-label">minimax-m3</text>
+<rect x="172" y="143.00" width="1.00" height="20" rx="3" ry="3" class="chart-bar bar-success"></rect>
+<text x="179.00" y="153.00" dominant-baseline="middle" class="chart-value">0.0 %</text>
+<text x="160" y="183.00" text-anchor="end" dominant-baseline="middle" class="chart-label">nemotron-3-ultra-fp4</text>
+<rect x="172" y="173.00" width="1.00" height="20" rx="3" ry="3" class="chart-bar bar-success"></rect>
+<text x="179.00" y="183.00" dominant-baseline="middle" class="chart-value">0.0 %</text>
+<text x="160" y="213.00" text-anchor="end" dominant-baseline="middle" class="chart-label">deepseek-v4-flash</text>
+<rect x="172" y="203.00" width="1.00" height="20" rx="3" ry="3" class="chart-bar bar-success"></rect>
+<text x="179.00" y="213.00" dominant-baseline="middle" class="chart-value">0.0 %</text>
+</svg></div>
+<div class="chart" id="chart-deltas">
+<h3 class="chart-title">Tok/s delta vs. previous run</h3>
+<svg class="chart-svg" viewBox="0 0 800 246" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Tok/s delta vs. previous run">
+<line x1="427.00" y1="12" x2="427.00" y2="234" class="chart-axis"></line>
+<text x="160" y="33.00" text-anchor="end" dominant-baseline="middle" class="chart-label">deepseek-v4-flash</text>
+<rect x="178.00" y="23.00" width="249.00" height="20" rx="3" ry="3" class="chart-bar bar-missing"></rect>
+<text x="172.00" y="33.00" text-anchor="end" dominant-baseline="middle" class="chart-value status-missing">missing</text>
+<text x="160" y="63.00" text-anchor="end" dominant-baseline="middle" class="chart-label">glm-5.2-fp8</text>
+<rect x="178.00" y="53.00" width="249.00" height="20" rx="3" ry="3" class="chart-bar bar-missing"></rect>
+<text x="172.00" y="63.00" text-anchor="end" dominant-baseline="middle" class="chart-value status-missing">missing</text>
+<text x="160" y="93.00" text-anchor="end" dominant-baseline="middle" class="chart-label">kimi-k2.6</text>
+<rect x="178.00" y="83.00" width="249.00" height="20" rx="3" ry="3" class="chart-bar bar-missing"></rect>
+<text x="172.00" y="93.00" text-anchor="end" dominant-baseline="middle" class="chart-value status-missing">missing</text>
+<text x="160" y="123.00" text-anchor="end" dominant-baseline="middle" class="chart-label">kimi-k2.7</text>
+<rect x="178.00" y="113.00" width="249.00" height="20" rx="3" ry="3" class="chart-bar bar-missing"></rect>
+<text x="172.00" y="123.00" text-anchor="end" dominant-baseline="middle" class="chart-value status-missing">missing</text>
+<text x="160" y="153.00" text-anchor="end" dominant-baseline="middle" class="chart-label">minimax-m2.7</text>
+<rect x="178.00" y="143.00" width="249.00" height="20" rx="3" ry="3" class="chart-bar bar-missing"></rect>
+<text x="172.00" y="153.00" text-anchor="end" dominant-baseline="middle" class="chart-value status-missing">missing</text>
+<text x="160" y="183.00" text-anchor="end" dominant-baseline="middle" class="chart-label">minimax-m3</text>
+<rect x="178.00" y="173.00" width="249.00" height="20" rx="3" ry="3" class="chart-bar bar-missing"></rect>
+<text x="172.00" y="183.00" text-anchor="end" dominant-baseline="middle" class="chart-value status-missing">missing</text>
+<text x="160" y="213.00" text-anchor="end" dominant-baseline="middle" class="chart-label">nemotron-3-ultra-fp4</text>
+<rect x="178.00" y="203.00" width="249.00" height="20" rx="3" ry="3" class="chart-bar bar-missing"></rect>
+<text x="172.00" y="213.00" text-anchor="end" dominant-baseline="middle" class="chart-value status-missing">missing</text>
+</svg></div>
+  </div>
+</div>
 
   <div class="section">
     <h2>Aggregated Results (median across prompts)</h2>
@@ -147,13 +318,13 @@ tr:hover td {
         <tr><th>Model</th><th>OK/N</th><th>SR%</th><th>Med Total(s)</th><th>Med TFT(s)</th><th>Med Tok/s</th><th>Med TotTok/s</th><th>Med ms/tok</th><th>Categories</th></tr>
       </thead>
       <tbody>
-        <tr><td>nemotron-3-ultra-fp4</td><td>10/10</td><td>100.0</td><td>1.8856</td><td>0.5631</td><td>199.4976</td><td>170.7215</td><td>5.0126</td><td>coding,cs_concepts,debugging,design,math,reasoning</td></tr>
-<tr><td>deepseek-v4-flash</td><td>10/10</td><td>100.0</td><td>2.8854</td><td>0.9042</td><td>132.2856</td><td>108.1182</td><td>7.5685</td><td>coding,cs_concepts,debugging,design,math,reasoning</td></tr>
-<tr><td>kimi-k2.6</td><td>10/10</td><td>100.0</td><td>2.9869</td><td>0.5290</td><td>103.5902</td><td>102.4674</td><td>9.6538</td><td>coding,cs_concepts,debugging,design,math,reasoning</td></tr>
-<tr><td>minimax-m2.7</td><td>10/10</td><td>100.0</td><td>3.0144</td><td>0.4485</td><td>102.9185</td><td>158.8444</td><td>9.7209</td><td>coding,cs_concepts,debugging,design,math,reasoning</td></tr>
-<tr><td>kimi-k2.7</td><td>10/10</td><td>100.0</td><td>3.6232</td><td>0.5160</td><td>104.5394</td><td>90.1566</td><td>9.5658</td><td>coding,cs_concepts,debugging,design,math,reasoning</td></tr>
-<tr><td>minimax-m3</td><td>10/10</td><td>100.0</td><td>4.7505</td><td>0.5023</td><td>63.7398</td><td>101.0217</td><td>15.7006</td><td>coding,cs_concepts,debugging,design,math,reasoning</td></tr>
-<tr><td>glm-5.2-fp8</td><td>0/10</td><td>0.0</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>coding,cs_concepts,debugging,design,math,reasoning</td></tr>
+        <tr><td>glm-5.2-fp8</td><td>0/10</td><td>0.0</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>coding,cs_concepts,debugging,design,math,reasoning</td></tr>
+<tr><td>kimi-k2.6</td><td>0/10</td><td>0.0</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>coding,cs_concepts,debugging,design,math,reasoning</td></tr>
+<tr><td>kimi-k2.7</td><td>0/10</td><td>0.0</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>coding,cs_concepts,debugging,design,math,reasoning</td></tr>
+<tr><td>minimax-m2.7</td><td>0/10</td><td>0.0</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>coding,cs_concepts,debugging,design,math,reasoning</td></tr>
+<tr><td>minimax-m3</td><td>0/10</td><td>0.0</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>coding,cs_concepts,debugging,design,math,reasoning</td></tr>
+<tr><td>nemotron-3-ultra-fp4</td><td>0/10</td><td>0.0</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>coding,cs_concepts,debugging,design,math,reasoning</td></tr>
+<tr><td>deepseek-v4-flash</td><td>0/10</td><td>0.0</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>coding,cs_concepts,debugging,design,math,reasoning</td></tr>
       </tbody>
     </table>
   </div>
@@ -165,16 +336,16 @@ tr:hover td {
         <tr><th>Model</th><th>Prompt</th><th>Category</th><th>Run</th><th>Status</th><th>Total(s)</th><th>TFT(s)</th><th>Tok/s</th><th>ms/tok</th><th>In</th><th>Out</th><th>Error</th></tr>
       </thead>
       <tbody>
-        <tr><td>deepseek-v4-flash</td><td>algorithm_complexity</td><td>reasoning</td><td>0</td><td>OK</td><td>5.1629</td><td>1.6742</td><td>73.3799</td><td>13.6277</td><td>44</td><td>256</td><td></td></tr>
-<tr><td>deepseek-v4-flash</td><td>coding_debug</td><td>debugging</td><td>0</td><td>OK</td><td>2.8768</td><td>1.0063</td><td>136.8597</td><td>7.3068</td><td>99</td><td>256</td><td></td></tr>
-<tr><td>deepseek-v4-flash</td><td>coding_palindrome</td><td>coding</td><td>0</td><td>OK</td><td>2.6085</td><td>1.0022</td><td>159.3747</td><td>6.2745</td><td>36</td><td>256</td><td></td></tr>
-<tr><td>deepseek-v4-flash</td><td>concurrency</td><td>cs_concepts</td><td>0</td><td>OK</td><td>2.6748</td><td>0.8063</td><td>137.0029</td><td>7.2991</td><td>40</td><td>256</td><td></td></tr>
-<tr><td>deepseek-v4-flash</td><td>data_structures</td><td>cs_concepts</td><td>0</td><td>OK</td><td>2.7937</td><td>0.6148</td><td>117.4929</td><td>8.5111</td><td>44</td><td>256</td><td></td></tr>
-<tr><td>deepseek-v4-flash</td><td>logic_puzzle</td><td>reasoning</td><td>0</td><td>OK</td><td>3.0121</td><td>1.0076</td><td>127.7114</td><td>7.8302</td><td>42</td><td>256</td><td></td></tr>
-<tr><td>deepseek-v4-flash</td><td>math_reasoning</td><td>math</td><td>0</td><td>OK</td><td>3.2960</td><td>1.7878</td><td>169.7441</td><td>5.8912</td><td>65</td><td>256</td><td></td></tr>
-<tr><td>deepseek-v4-flash</td><td>regex_task</td><td>coding</td><td>0</td><td>OK</td><td>2.4682</td><td>0.6030</td><td>137.2564</td><td>7.2856</td><td>67</td><td>256</td><td></td></tr>
-<tr><td>deepseek-v4-flash</td><td>sql_query</td><td>coding</td><td>0</td><td>OK</td><td>2.8939</td><td>0.6549</td><td>114.3373</td><td>8.7460</td><td>59</td><td>256</td><td></td></tr>
-<tr><td>deepseek-v4-flash</td><td>system_design</td><td>design</td><td>0</td><td>OK</td><td>3.2790</td><td>0.7917</td><td>102.9209</td><td>9.7162</td><td>45</td><td>256</td><td></td></tr>
+        <tr><td>deepseek-v4-flash</td><td>algorithm_complexity</td><td>reasoning</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>deepseek-v4-flash</td><td>coding_debug</td><td>debugging</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>deepseek-v4-flash</td><td>coding_palindrome</td><td>coding</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>deepseek-v4-flash</td><td>concurrency</td><td>cs_concepts</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>deepseek-v4-flash</td><td>data_structures</td><td>cs_concepts</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>deepseek-v4-flash</td><td>logic_puzzle</td><td>reasoning</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>deepseek-v4-flash</td><td>math_reasoning</td><td>math</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>deepseek-v4-flash</td><td>regex_task</td><td>coding</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>deepseek-v4-flash</td><td>sql_query</td><td>coding</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>deepseek-v4-flash</td><td>system_design</td><td>design</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
 <tr><td>glm-5.2-fp8</td><td>algorithm_complexity</td><td>reasoning</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
 <tr><td>glm-5.2-fp8</td><td>coding_debug</td><td>debugging</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
 <tr><td>glm-5.2-fp8</td><td>coding_palindrome</td><td>coding</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
@@ -185,56 +356,56 @@ tr:hover td {
 <tr><td>glm-5.2-fp8</td><td>regex_task</td><td>coding</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
 <tr><td>glm-5.2-fp8</td><td>sql_query</td><td>coding</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
 <tr><td>glm-5.2-fp8</td><td>system_design</td><td>design</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
-<tr><td>kimi-k2.6</td><td>algorithm_complexity</td><td>reasoning</td><td>0</td><td>OK</td><td>3.0930</td><td>0.6360</td><td>104.1933</td><td>9.5975</td><td>47</td><td>256</td><td></td></tr>
-<tr><td>kimi-k2.6</td><td>coding_debug</td><td>debugging</td><td>0</td><td>OK</td><td>2.7272</td><td>0.4734</td><td>113.5831</td><td>8.8041</td><td>100</td><td>256</td><td></td></tr>
-<tr><td>kimi-k2.6</td><td>coding_palindrome</td><td>coding</td><td>0</td><td>OK</td><td>2.7764</td><td>0.4856</td><td>111.7496</td><td>8.9486</td><td>41</td><td>256</td><td></td></tr>
-<tr><td>kimi-k2.6</td><td>concurrency</td><td>cs_concepts</td><td>0</td><td>OK</td><td>3.3966</td><td>0.8552</td><td>100.7309</td><td>9.9274</td><td>41</td><td>256</td><td></td></tr>
-<tr><td>kimi-k2.6</td><td>data_structures</td><td>cs_concepts</td><td>0</td><td>OK</td><td>2.8099</td><td>0.5689</td><td>114.2363</td><td>8.7538</td><td>48</td><td>256</td><td></td></tr>
-<tr><td>kimi-k2.6</td><td>logic_puzzle</td><td>reasoning</td><td>0</td><td>OK</td><td>3.4630</td><td>0.4504</td><td>84.9764</td><td>11.7680</td><td>46</td><td>256</td><td></td></tr>
-<tr><td>kimi-k2.6</td><td>math_reasoning</td><td>math</td><td>0</td><td>OK</td><td>4.4524</td><td>0.7122</td><td>68.4471</td><td>14.6098</td><td>71</td><td>256</td><td></td></tr>
-<tr><td>kimi-k2.6</td><td>regex_task</td><td>coding</td><td>0</td><td>OK</td><td>2.7556</td><td>0.4892</td><td>112.9531</td><td>8.8532</td><td>69</td><td>256</td><td></td></tr>
-<tr><td>kimi-k2.6</td><td>sql_query</td><td>coding</td><td>0</td><td>OK</td><td>2.8808</td><td>0.3950</td><td>102.9870</td><td>9.7100</td><td>63</td><td>256</td><td></td></tr>
-<tr><td>kimi-k2.6</td><td>system_design</td><td>design</td><td>0</td><td>OK</td><td>6.2967</td><td>0.6839</td><td>45.6103</td><td>21.9249</td><td>51</td><td>256</td><td></td></tr>
-<tr><td>kimi-k2.7</td><td>algorithm_complexity</td><td>reasoning</td><td>0</td><td>OK</td><td>2.7291</td><td>0.5068</td><td>115.1926</td><td>8.6811</td><td>47</td><td>256</td><td></td></tr>
-<tr><td>kimi-k2.7</td><td>coding_debug</td><td>debugging</td><td>0</td><td>OK</td><td>2.9613</td><td>0.6122</td><td>108.9796</td><td>9.1760</td><td>100</td><td>256</td><td></td></tr>
-<tr><td>kimi-k2.7</td><td>coding_palindrome</td><td>coding</td><td>0</td><td>OK</td><td>4.1819</td><td>0.3679</td><td>67.1205</td><td>14.8986</td><td>41</td><td>256</td><td></td></tr>
-<tr><td>kimi-k2.7</td><td>concurrency</td><td>cs_concepts</td><td>0</td><td>OK</td><td>4.3119</td><td>0.3721</td><td>64.9781</td><td>15.3898</td><td>41</td><td>256</td><td></td></tr>
-<tr><td>kimi-k2.7</td><td>data_structures</td><td>cs_concepts</td><td>0</td><td>OK</td><td>2.9366</td><td>0.4904</td><td>104.6540</td><td>9.5553</td><td>48</td><td>256</td><td></td></tr>
-<tr><td>kimi-k2.7</td><td>logic_puzzle</td><td>reasoning</td><td>0</td><td>OK</td><td>5.4605</td><td>3.2014</td><td>108.8951</td><td>9.1831</td><td>46</td><td>246</td><td></td></tr>
-<tr><td>kimi-k2.7</td><td>math_reasoning</td><td>math</td><td>0</td><td>OK</td><td>4.2582</td><td>0.5253</td><td>68.5791</td><td>14.5817</td><td>71</td><td>256</td><td></td></tr>
-<tr><td>kimi-k2.7</td><td>regex_task</td><td>coding</td><td>0</td><td>OK</td><td>4.2941</td><td>0.4502</td><td>66.6000</td><td>15.0150</td><td>69</td><td>256</td><td></td></tr>
-<tr><td>kimi-k2.7</td><td>sql_query</td><td>coding</td><td>0</td><td>OK</td><td>3.0645</td><td>0.6130</td><td>104.4248</td><td>9.5763</td><td>63</td><td>256</td><td></td></tr>
-<tr><td>kimi-k2.7</td><td>system_design</td><td>design</td><td>0</td><td>OK</td><td>2.9389</td><td>0.6685</td><td>112.7587</td><td>8.8685</td><td>51</td><td>256</td><td></td></tr>
-<tr><td>minimax-m2.7</td><td>algorithm_complexity</td><td>reasoning</td><td>0</td><td>OK</td><td>7.8657</td><td>3.4957</td><td>58.5816</td><td>17.0702</td><td>213</td><td>256</td><td></td></tr>
-<tr><td>minimax-m2.7</td><td>coding_debug</td><td>debugging</td><td>0</td><td>OK</td><td>2.8254</td><td>0.5253</td><td>111.2981</td><td>8.9849</td><td>265</td><td>256</td><td></td></tr>
-<tr><td>minimax-m2.7</td><td>coding_palindrome</td><td>coding</td><td>0</td><td>OK</td><td>2.5034</td><td>0.4394</td><td>124.0336</td><td>8.0623</td><td>205</td><td>256</td><td></td></tr>
-<tr><td>minimax-m2.7</td><td>concurrency</td><td>cs_concepts</td><td>0</td><td>OK</td><td>2.4779</td><td>0.3226</td><td>118.7779</td><td>8.4191</td><td>206</td><td>256</td><td></td></tr>
-<tr><td>minimax-m2.7</td><td>data_structures</td><td>cs_concepts</td><td>0</td><td>OK</td><td>16.7166</td><td>6.5760</td><td>25.2449</td><td>39.6119</td><td>213</td><td>256</td><td></td></tr>
-<tr><td>minimax-m2.7</td><td>logic_puzzle</td><td>reasoning</td><td>0</td><td>OK</td><td>2.8930</td><td>0.4576</td><td>105.1196</td><td>9.5130</td><td>211</td><td>256</td><td></td></tr>
-<tr><td>minimax-m2.7</td><td>math_reasoning</td><td>math</td><td>0</td><td>OK</td><td>3.1358</td><td>0.5940</td><td>100.7174</td><td>9.9288</td><td>234</td><td>256</td><td></td></tr>
-<tr><td>minimax-m2.7</td><td>regex_task</td><td>coding</td><td>0</td><td>OK</td><td>2.2472</td><td>0.3600</td><td>135.6496</td><td>7.3719</td><td>234</td><td>256</td><td></td></tr>
-<tr><td>minimax-m2.7</td><td>sql_query</td><td>coding</td><td>0</td><td>OK</td><td>4.4871</td><td>0.4375</td><td>63.2158</td><td>15.8188</td><td>228</td><td>256</td><td></td></tr>
-<tr><td>minimax-m2.7</td><td>system_design</td><td>design</td><td>0</td><td>OK</td><td>5.5099</td><td>0.4314</td><td>50.4080</td><td>19.8381</td><td>216</td><td>256</td><td></td></tr>
-<tr><td>minimax-m3</td><td>algorithm_complexity</td><td>reasoning</td><td>0</td><td>OK</td><td>6.8438</td><td>0.7347</td><td>41.9045</td><td>23.8638</td><td>213</td><td>256</td><td></td></tr>
-<tr><td>minimax-m3</td><td>coding_debug</td><td>debugging</td><td>0</td><td>OK</td><td>2.4766</td><td>0.3806</td><td>122.1357</td><td>8.1876</td><td>265</td><td>256</td><td></td></tr>
-<tr><td>minimax-m3</td><td>coding_palindrome</td><td>coding</td><td>0</td><td>OK</td><td>3.0615</td><td>0.4207</td><td>96.9415</td><td>10.3155</td><td>205</td><td>256</td><td></td></tr>
-<tr><td>minimax-m3</td><td>concurrency</td><td>cs_concepts</td><td>0</td><td>OK</td><td>9.6148</td><td>0.4828</td><td>28.0334</td><td>35.6718</td><td>206</td><td>256</td><td></td></tr>
-<tr><td>minimax-m3</td><td>data_structures</td><td>cs_concepts</td><td>0</td><td>OK</td><td>3.5394</td><td>0.4487</td><td>82.8284</td><td>12.0732</td><td>213</td><td>256</td><td></td></tr>
-<tr><td>minimax-m3</td><td>logic_puzzle</td><td>reasoning</td><td>0</td><td>OK</td><td>4.4307</td><td>0.5218</td><td>65.4909</td><td>15.2693</td><td>211</td><td>256</td><td></td></tr>
-<tr><td>minimax-m3</td><td>math_reasoning</td><td>math</td><td>0</td><td>OK</td><td>3.1852</td><td>0.6197</td><td>99.7854</td><td>10.0215</td><td>234</td><td>256</td><td></td></tr>
-<tr><td>minimax-m3</td><td>regex_task</td><td>coding</td><td>0</td><td>OK</td><td>5.0702</td><td>0.9404</td><td>61.9888</td><td>16.1320</td><td>234</td><td>256</td><td></td></tr>
-<tr><td>minimax-m3</td><td>sql_query</td><td>coding</td><td>0</td><td>OK</td><td>5.9314</td><td>0.4812</td><td>46.9700</td><td>21.2902</td><td>228</td><td>256</td><td></td></tr>
-<tr><td>minimax-m3</td><td>system_design</td><td>design</td><td>0</td><td>OK</td><td>6.3598</td><td>1.4821</td><td>52.4832</td><td>19.0537</td><td>216</td><td>256</td><td></td></tr>
-<tr><td>nemotron-3-ultra-fp4</td><td>algorithm_complexity</td><td>reasoning</td><td>0</td><td>OK</td><td>1.0982</td><td>0.4528</td><td>396.6550</td><td>2.5211</td><td>56</td><td>256</td><td></td></tr>
-<tr><td>nemotron-3-ultra-fp4</td><td>coding_debug</td><td>debugging</td><td>0</td><td>OK</td><td>2.1163</td><td>0.8294</td><td>198.9213</td><td>5.0271</td><td>111</td><td>256</td><td></td></tr>
-<tr><td>nemotron-3-ultra-fp4</td><td>coding_palindrome</td><td>coding</td><td>0</td><td>OK</td><td>1.5493</td><td>0.4461</td><td>232.0624</td><td>4.3092</td><td>49</td><td>256</td><td></td></tr>
-<tr><td>nemotron-3-ultra-fp4</td><td>concurrency</td><td>cs_concepts</td><td>0</td><td>OK</td><td>2.1394</td><td>0.5678</td><td>162.8939</td><td>6.1390</td><td>52</td><td>256</td><td></td></tr>
-<tr><td>nemotron-3-ultra-fp4</td><td>data_structures</td><td>cs_concepts</td><td>0</td><td>OK</td><td>1.9066</td><td>0.6090</td><td>197.2901</td><td>5.0687</td><td>56</td><td>256</td><td></td></tr>
-<tr><td>nemotron-3-ultra-fp4</td><td>logic_puzzle</td><td>reasoning</td><td>0</td><td>OK</td><td>1.8645</td><td>0.5850</td><td>200.0739</td><td>4.9982</td><td>56</td><td>256</td><td></td></tr>
-<tr><td>nemotron-3-ultra-fp4</td><td>math_reasoning</td><td>math</td><td>0</td><td>OK</td><td>1.7926</td><td>0.6113</td><td>216.6957</td><td>4.6148</td><td>82</td><td>256</td><td></td></tr>
-<tr><td>nemotron-3-ultra-fp4</td><td>regex_task</td><td>coding</td><td>0</td><td>OK</td><td>1.3388</td><td>0.4464</td><td>286.8539</td><td>3.4861</td><td>87</td><td>256</td><td></td></tr>
-<tr><td>nemotron-3-ultra-fp4</td><td>sql_query</td><td>coding</td><td>0</td><td>OK</td><td>1.9520</td><td>0.4514</td><td>170.5980</td><td>5.8617</td><td>72</td><td>256</td><td></td></tr>
-<tr><td>nemotron-3-ultra-fp4</td><td>system_design</td><td>design</td><td>0</td><td>OK</td><td>2.3549</td><td>0.5583</td><td>142.4866</td><td>7.0182</td><td>66</td><td>256</td><td></td></tr>
+<tr><td>kimi-k2.6</td><td>algorithm_complexity</td><td>reasoning</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>kimi-k2.6</td><td>coding_debug</td><td>debugging</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>kimi-k2.6</td><td>coding_palindrome</td><td>coding</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>kimi-k2.6</td><td>concurrency</td><td>cs_concepts</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>kimi-k2.6</td><td>data_structures</td><td>cs_concepts</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>kimi-k2.6</td><td>logic_puzzle</td><td>reasoning</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>kimi-k2.6</td><td>math_reasoning</td><td>math</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>kimi-k2.6</td><td>regex_task</td><td>coding</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>kimi-k2.6</td><td>sql_query</td><td>coding</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>kimi-k2.6</td><td>system_design</td><td>design</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>kimi-k2.7</td><td>algorithm_complexity</td><td>reasoning</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>kimi-k2.7</td><td>coding_debug</td><td>debugging</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>kimi-k2.7</td><td>coding_palindrome</td><td>coding</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>kimi-k2.7</td><td>concurrency</td><td>cs_concepts</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>kimi-k2.7</td><td>data_structures</td><td>cs_concepts</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>kimi-k2.7</td><td>logic_puzzle</td><td>reasoning</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>kimi-k2.7</td><td>math_reasoning</td><td>math</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>kimi-k2.7</td><td>regex_task</td><td>coding</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>kimi-k2.7</td><td>sql_query</td><td>coding</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>kimi-k2.7</td><td>system_design</td><td>design</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>minimax-m2.7</td><td>algorithm_complexity</td><td>reasoning</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>minimax-m2.7</td><td>coding_debug</td><td>debugging</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>minimax-m2.7</td><td>coding_palindrome</td><td>coding</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>minimax-m2.7</td><td>concurrency</td><td>cs_concepts</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>minimax-m2.7</td><td>data_structures</td><td>cs_concepts</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>minimax-m2.7</td><td>logic_puzzle</td><td>reasoning</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>minimax-m2.7</td><td>math_reasoning</td><td>math</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>minimax-m2.7</td><td>regex_task</td><td>coding</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>minimax-m2.7</td><td>sql_query</td><td>coding</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>minimax-m2.7</td><td>system_design</td><td>design</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>minimax-m3</td><td>algorithm_complexity</td><td>reasoning</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>minimax-m3</td><td>coding_debug</td><td>debugging</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>minimax-m3</td><td>coding_palindrome</td><td>coding</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>minimax-m3</td><td>concurrency</td><td>cs_concepts</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>minimax-m3</td><td>data_structures</td><td>cs_concepts</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>minimax-m3</td><td>logic_puzzle</td><td>reasoning</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>minimax-m3</td><td>math_reasoning</td><td>math</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>minimax-m3</td><td>regex_task</td><td>coding</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>minimax-m3</td><td>sql_query</td><td>coding</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>minimax-m3</td><td>system_design</td><td>design</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>nemotron-3-ultra-fp4</td><td>algorithm_complexity</td><td>reasoning</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>nemotron-3-ultra-fp4</td><td>coding_debug</td><td>debugging</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>nemotron-3-ultra-fp4</td><td>coding_palindrome</td><td>coding</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>nemotron-3-ultra-fp4</td><td>concurrency</td><td>cs_concepts</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>nemotron-3-ultra-fp4</td><td>data_structures</td><td>cs_concepts</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>nemotron-3-ultra-fp4</td><td>logic_puzzle</td><td>reasoning</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>nemotron-3-ultra-fp4</td><td>math_reasoning</td><td>math</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>nemotron-3-ultra-fp4</td><td>regex_task</td><td>coding</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>nemotron-3-ultra-fp4</td><td>sql_query</td><td>coding</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
+<tr><td>nemotron-3-ultra-fp4</td><td>system_design</td><td>design</td><td>0</td><td>FAIL</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ErrorCategory.UNKNOWN</td></tr>
       </tbody>
     </table>
   </div>
@@ -246,13 +417,13 @@ tr:hover td {
         <tr><th>Model</th><th>Status</th><th>Total Δ</th><th>TFT Δ</th><th>Tok/s Δ</th></tr>
       </thead>
       <tbody>
-        <tr><td>deepseek-v4-flash</td><td>new</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>deepseek-v4-flash</td><td>missing</td><td>-</td><td>-</td><td>-</td></tr>
 <tr><td>glm-5.2-fp8</td><td>missing</td><td>-</td><td>-</td><td>-</td></tr>
-<tr><td>kimi-k2.6</td><td>regressed</td><td>0.0203</td><td>0.0387</td><td>-4.2007</td></tr>
-<tr><td>kimi-k2.7</td><td>improved</td><td>-0.2543</td><td>-0.1959</td><td>19.0948</td></tr>
-<tr><td>minimax-m2.7</td><td>regressed</td><td>0.3476</td><td>-0.2462</td><td>-33.3755</td></tr>
-<tr><td>minimax-m3</td><td>regressed</td><td>2.4364</td><td>0.1238</td><td>-68.7604</td></tr>
-<tr><td>nemotron-3-ultra-fp4</td><td>improved</td><td>-0.1320</td><td>-0.0870</td><td>18.1990</td></tr>
+<tr><td>kimi-k2.6</td><td>missing</td><td>-</td><td>-</td><td>-</td></tr>
+<tr><td>kimi-k2.7</td><td>missing</td><td>-</td><td>-</td><td>-</td></tr>
+<tr><td>minimax-m2.7</td><td>missing</td><td>-</td><td>-</td><td>-</td></tr>
+<tr><td>minimax-m3</td><td>missing</td><td>-</td><td>-</td><td>-</td></tr>
+<tr><td>nemotron-3-ultra-fp4</td><td>missing</td><td>-</td><td>-</td><td>-</td></tr>
       </tbody>
     </table>
   </div>
