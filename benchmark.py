@@ -801,6 +801,287 @@ def _html_value(value: Any) -> str:
     return html.escape(str(value))
 
 
+_CHART_VIEW_WIDTH = 800
+_CHART_LABEL_WIDTH = 160
+_CHART_VALUE_WIDTH = 110
+_CHART_ROW_HEIGHT = 30
+_CHART_PAD_Y = 18
+
+
+def _chart_horizontal_bars(
+    chart_id: str,
+    title: str,
+    rows: list[tuple[str, float | None]],
+    *,
+    color_class: str = "bar-accent",
+    value_format: str = "{:.2f}",
+    suffix: str = "",
+    max_value: float | None = None,
+) -> str:
+    """Render a horizontal bar chart as inline SVG.
+
+    rows: list of (label, value) tuples. None values are rendered as a dash.
+    """
+    if not rows:
+        return ""
+
+    chart_left = _CHART_LABEL_WIDTH + 12
+    chart_right = _CHART_VIEW_WIDTH - _CHART_VALUE_WIDTH - 8
+    chart_width = chart_right - chart_left
+    height = _CHART_PAD_Y * 2 + _CHART_ROW_HEIGHT * len(rows)
+
+    valid = [v for _, v in rows if v is not None]
+    scale_max = max_value if max_value is not None else (max(valid) if valid else 1.0)
+    if scale_max <= 0:
+        scale_max = 1.0
+
+    parts = [
+        f'<div class="chart" id="{html.escape(chart_id)}">',
+        f'<h3 class="chart-title">{html.escape(title)}</h3>',
+        (
+            f'<svg class="chart-svg" viewBox="0 0 {_CHART_VIEW_WIDTH} {height}" '
+            f'preserveAspectRatio="xMidYMid meet" role="img" '
+            f'aria-label="{html.escape(title)}">'
+        ),
+    ]
+
+    for i, (label, value) in enumerate(rows):
+        y_center = _CHART_PAD_Y + i * _CHART_ROW_HEIGHT + _CHART_ROW_HEIGHT / 2
+        bar_y = y_center - 10
+        parts.append(
+            f'<text x="{_CHART_LABEL_WIDTH}" y="{y_center:.2f}" text-anchor="end" '
+            f'dominant-baseline="middle" class="chart-label">'
+            f'{html.escape(label)}</text>'
+        )
+        if value is not None:
+            bar_w = max((value / scale_max) * chart_width, 1.0)
+            parts.append(
+                f'<rect x="{chart_left}" y="{bar_y:.2f}" width="{bar_w:.2f}" height="20" '
+                f'rx="3" ry="3" class="chart-bar {color_class}"></rect>'
+            )
+            val_str = value_format.format(value)
+            if suffix:
+                val_str = f"{val_str} {suffix}"
+            parts.append(
+                f'<text x="{chart_left + bar_w + 6:.2f}" y="{y_center:.2f}" '
+                f'dominant-baseline="middle" class="chart-value">'
+                f'{html.escape(val_str)}</text>'
+            )
+        else:
+            parts.append(
+                f'<text x="{chart_left + 4}" y="{y_center:.2f}" dominant-baseline="middle" '
+                f'class="chart-value chart-missing">-</text>'
+            )
+
+    parts.append("</svg></div>")
+    return "\n".join(parts)
+
+
+def _chart_deltas(
+    chart_id: str,
+    title: str,
+    rows: list[tuple[str, dict[str, Any]]],
+) -> str:
+    """Render a diverging bar chart for per-model comparison deltas.
+
+    rows: list of (model, comparison_dict) tuples. The chart visualises
+    ``median_tokens_per_sec_delta`` with status-driven colour and direction.
+    """
+    if not rows:
+        return ""
+
+    chart_left = _CHART_LABEL_WIDTH + 12
+    chart_right = _CHART_VIEW_WIDTH - _CHART_VALUE_WIDTH - 8
+    chart_width = chart_right - chart_left
+    zero_x = chart_left + chart_width / 2
+    height = _CHART_PAD_Y * 2 + _CHART_ROW_HEIGHT * len(rows)
+
+    deltas = [
+        comp.get("median_tokens_per_sec_delta")
+        for _, comp in rows
+        if comp.get("status") not in ("new", "missing")
+        and comp.get("median_tokens_per_sec_delta") is not None
+    ]
+    abs_max = max((abs(v) for v in deltas), default=1.0)
+    if abs_max <= 0:
+        abs_max = 1.0
+    half_width = chart_width / 2 - 6
+
+    parts = [
+        f'<div class="chart" id="{html.escape(chart_id)}">',
+        f'<h3 class="chart-title">{html.escape(title)}</h3>',
+        (
+            f'<svg class="chart-svg" viewBox="0 0 {_CHART_VIEW_WIDTH} {height}" '
+            f'preserveAspectRatio="xMidYMid meet" role="img" '
+            f'aria-label="{html.escape(title)}">'
+        ),
+        (
+            f'<line x1="{zero_x:.2f}" y1="{_CHART_PAD_Y - 6}" '
+            f'x2="{zero_x:.2f}" y2="{height - _CHART_PAD_Y + 6}" '
+            f'class="chart-axis"></line>'
+        ),
+    ]
+
+    for i, (label, comp) in enumerate(rows):
+        y_center = _CHART_PAD_Y + i * _CHART_ROW_HEIGHT + _CHART_ROW_HEIGHT / 2
+        bar_y = y_center - 10
+        status = comp.get("status", "missing")
+
+        parts.append(
+            f'<text x="{_CHART_LABEL_WIDTH}" y="{y_center:.2f}" text-anchor="end" '
+            f'dominant-baseline="middle" class="chart-label">'
+            f'{html.escape(label)}</text>'
+        )
+
+        delta = comp.get("median_tokens_per_sec_delta")
+
+        if status == "new":
+            parts.append(
+                f'<rect x="{zero_x:.2f}" y="{bar_y:.2f}" width="{half_width:.2f}" height="20" '
+                f'rx="3" ry="3" class="chart-bar bar-new"></rect>'
+            )
+            parts.append(
+                f'<text x="{zero_x + half_width + 6:.2f}" y="{y_center:.2f}" '
+                f'dominant-baseline="middle" class="chart-value status-new">new</text>'
+            )
+            continue
+
+        if status == "missing":
+            parts.append(
+                f'<rect x="{zero_x - half_width:.2f}" y="{bar_y:.2f}" width="{half_width:.2f}" '
+                f'height="20" rx="3" ry="3" class="chart-bar bar-missing"></rect>'
+            )
+            parts.append(
+                f'<text x="{zero_x - half_width - 6:.2f}" y="{y_center:.2f}" text-anchor="end" '
+                f'dominant-baseline="middle" class="chart-value status-missing">missing</text>'
+            )
+            continue
+
+        if delta is None:
+            parts.append(
+                f'<text x="{zero_x + 4:.2f}" y="{y_center:.2f}" dominant-baseline="middle" '
+                f'class="chart-value chart-missing">-</text>'
+            )
+            continue
+
+        bar_w = max(min(abs(delta) / abs_max * half_width, half_width), 1.0)
+        if delta >= 0:
+            parts.append(
+                f'<rect x="{zero_x:.2f}" y="{bar_y:.2f}" width="{bar_w:.2f}" height="20" '
+                f'rx="3" ry="3" class="chart-bar bar-success"></rect>'
+            )
+            parts.append(
+                f'<text x="{zero_x + bar_w + 6:.2f}" y="{y_center:.2f}" '
+                f'dominant-baseline="middle" class="chart-value status-improved">'
+                f'+{delta:.4f}</text>'
+            )
+        else:
+            parts.append(
+                f'<rect x="{zero_x - bar_w:.2f}" y="{bar_y:.2f}" width="{bar_w:.2f}" '
+                f'height="20" rx="3" ry="3" class="chart-bar bar-danger"></rect>'
+            )
+            parts.append(
+                f'<text x="{zero_x - bar_w - 6:.2f}" y="{y_center:.2f}" text-anchor="end" '
+                f'dominant-baseline="middle" class="chart-value status-regressed">'
+                f'{delta:+.4f}</text>'
+            )
+
+    parts.append("</svg></div>")
+    return "\n".join(parts)
+
+
+def _build_charts_html(
+    aggregates: list[ModelAggregate],
+    results: list[BenchmarkResult],
+    comparisons: dict[str, dict[str, Any]],
+) -> str:
+    """Build the inline-SVG chart block for the HTML report."""
+    if not aggregates:
+        return ""
+
+    sorted_agg = sorted(
+        aggregates,
+        key=lambda a: a.median_total_time_sec if a.median_total_time_sec is not None else float("inf"),
+    )
+
+    tokens_rows = [(a.model, a.median_tokens_per_sec) for a in sorted_agg]
+    tft_rows = [(a.model, a.median_time_to_first_token_sec) for a in sorted_agg]
+    total_rows = [(a.model, a.median_total_time_sec) for a in sorted_agg]
+    success_rows = [(a.model, a.success_rate) for a in sorted_agg]
+
+    charts: list[str] = []
+    charts.append(_chart_horizontal_bars(
+        "chart-tokens-per-sec",
+        "Median tokens/sec by model",
+        tokens_rows,
+        color_class="bar-accent",
+        value_format="{:.2f}",
+        suffix="tok/s",
+    ))
+    charts.append(_chart_horizontal_bars(
+        "chart-ttft",
+        "Median time-to-first-token (TTFT) by model",
+        tft_rows,
+        color_class="bar-warning",
+        value_format="{:.3f}",
+        suffix="s",
+    ))
+    charts.append(_chart_horizontal_bars(
+        "chart-total-time",
+        "Median total time by model",
+        total_rows,
+        color_class="bar-muted",
+        value_format="{:.2f}",
+        suffix="s",
+    ))
+    charts.append(_chart_horizontal_bars(
+        "chart-success-rate",
+        "Success rate by model",
+        success_rows,
+        color_class="bar-success",
+        value_format="{:.1f}",
+        suffix="%",
+        max_value=100.0,
+    ))
+
+    if comparisons:
+        comp_rows = [
+            (model, comp) for model, comp in sorted(comparisons.items())
+        ]
+        charts.append(_chart_deltas(
+            "chart-deltas",
+            "Tok/s delta vs. previous run",
+            comp_rows,
+        ))
+
+    category_summary = compute_category_summary(results)
+    if category_summary:
+        category_rows = [
+            (cat, data.get("median_tokens_per_sec"))
+            for cat, data in sorted(category_summary.items())
+        ]
+        if any(value is not None for _, value in category_rows):
+            charts.append(_chart_horizontal_bars(
+                "chart-category-tokens",
+                "Median tokens/sec by prompt category",
+                category_rows,
+                color_class="bar-accent",
+                value_format="{:.2f}",
+                suffix="tok/s",
+            ))
+
+    charts_html = "\n".join(c for c in charts if c)
+    if not charts_html:
+        return ""
+
+    return (
+        '<div class="section chart-section">\n'
+        '  <h2>Performance Charts</h2>\n'
+        f'  <div class="charts-grid">\n{charts_html}\n  </div>\n'
+        '</div>'
+    )
+
+
 def write_html_output(
     path: Path,
     aggregates: list[ModelAggregate],
@@ -868,6 +1149,8 @@ def write_html_output(
     tps = _html_value(summary.get("median_tokens_per_sec"))
     total = _html_value(summary.get("median_total_time_sec"))
     tft = _html_value(summary.get("median_time_to_first_token_sec"))
+
+    charts_html = _build_charts_html(aggregates, results, comparisons)
 
     html_doc = f"""<!DOCTYPE html>
 <html lang="en">
@@ -971,6 +1254,66 @@ tr:hover td {{
 .status-unchanged {{ color: var(--muted); }}
 .status-new {{ color: var(--accent); font-weight: 600; }}
 .status-missing {{ color: var(--warning); }}
+.chart-section h2 {{
+  margin-bottom: 1rem;
+}}
+.charts-grid {{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 1rem;
+}}
+.chart {{
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  min-width: 0;
+}}
+.chart-title {{
+  font-size: 0.95rem;
+  margin: 0 0 0.5rem;
+  color: var(--text);
+  font-weight: 600;
+}}
+.chart-svg {{
+  width: 100%;
+  height: auto;
+  display: block;
+}}
+.chart-label {{
+  font-size: 12px;
+  fill: var(--text);
+  font-family: inherit;
+}}
+.chart-value {{
+  font-size: 11px;
+  fill: var(--muted);
+  font-family: inherit;
+}}
+.chart-missing {{
+  fill: var(--muted);
+  font-style: italic;
+}}
+.chart-axis {{
+  stroke: var(--border);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}}
+.chart-bar {{
+  fill: var(--accent);
+}}
+.chart-bar.bar-accent {{ fill: var(--accent); }}
+.chart-bar.bar-success {{ fill: var(--success); }}
+.chart-bar.bar-danger {{ fill: var(--danger); }}
+.chart-bar.bar-warning {{ fill: var(--warning); }}
+.chart-bar.bar-muted {{ fill: var(--muted); }}
+.chart-bar.bar-new {{ fill: var(--accent); opacity: 0.5; }}
+.chart-bar.bar-missing {{ fill: var(--warning); opacity: 0.5; }}
+@media (max-width: 600px) {{
+  .charts-grid {{ grid-template-columns: 1fr; }}
+  .chart-label {{ font-size: 10px; }}
+  .chart-value {{ font-size: 10px; }}
+}}
 .footer {{
   color: var(--muted);
   font-size: 0.875rem;
@@ -1010,6 +1353,8 @@ tr:hover td {{
       <div class="value">{tft}</div>
     </div>
   </div>
+
+{charts_html}
 
   <div class="section">
     <h2>Aggregated Results (median across prompts)</h2>
@@ -1246,7 +1591,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--output",
         "-o",
         type=Path,
-        default=_resolve_default("BENCHMARK_OUTPUT", config, "output", "benchmark_results", Path),
+        default=_resolve_default("BENCHMARK_OUTPUT", config, "output", "index", Path),
         help="Output base path",
     )
     parser.add_argument(

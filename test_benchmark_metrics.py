@@ -1,9 +1,12 @@
 """Tests for benchmark metrics, output writers, and previous-run comparison."""
 
 import json
+from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
+import benchmark
 from benchmark import (
     BenchmarkResult,
     ModelAggregate,
@@ -211,7 +214,7 @@ def test_write_markdown_output(tmp_path):
 
 
 def test_write_html_output(tmp_path):
-    """HTML output contains styled summary cards and aggregate/per-prompt tables."""
+    """HTML output contains styled summary cards, charts, and aggregate/per-prompt tables."""
     result = make_result(model="m1", total_time=10.0, time_to_first_token=2.0, completion_tokens=40)
     compute_metrics(result)
     agg = aggregate_model_results("m1", [result])
@@ -230,6 +233,34 @@ def test_write_html_output(tmp_path):
     assert "Comparison to Previous Run" in text
     assert "m1" in text
     assert "status-new" in text
+    assert "chart" in text
+    assert 'class="chart-svg"' in text
+    assert 'id="chart-tokens-per-sec"' in text
+    assert 'id="chart-ttft"' in text
+    assert 'id="chart-total-time"' in text
+    assert 'id="chart-success-rate"' in text
+    assert 'id="chart-deltas"' in text
+    assert "Performance Charts" in text
+    assert "Median tokens/sec by model" in text
+
+
+def test_write_html_output_category_chart(tmp_path):
+    """Per-category summary chart is rendered and backed by compute_category_summary."""
+    result = make_result(model="m1", prompt_id="p1", prompt_category="coding",
+                         total_time=10.0, time_to_first_token=2.0, completion_tokens=40)
+    compute_metrics(result)
+    agg = aggregate_model_results("m1", [result])
+    summary = compute_summary([agg])
+
+    path = tmp_path / "out.html"
+    with patch("benchmark.compute_category_summary", wraps=benchmark.compute_category_summary) as cat_spy:
+        write_html_output(path, [agg], [result], summary, {})
+
+    text = path.read_text(encoding="utf-8")
+    cat_spy.assert_called_once()
+    assert 'id="chart-category-tokens"' in text
+    assert "Median tokens/sec by prompt category" in text
+    assert "<svg" in text
 
 
 def test_load_previous_results(tmp_path):
@@ -241,7 +272,7 @@ def test_load_previous_results(tmp_path):
             {"model": "m2", "success_rate": 50.0},
         ],
     }
-    path = tmp_path / "benchmark_results.json"
+    path = tmp_path / "index.json"
     path.write_text(json.dumps(data), encoding="utf-8")
 
     previous = load_previous_results(path)

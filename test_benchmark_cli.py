@@ -33,7 +33,7 @@ def test_parse_args_defaults(monkeypatch):
     assert args.temperature == pytest.approx(DEFAULT_TEMPERATURE)
     assert args.workers == benchmark.MAX_WORKERS
     assert args.runs == DEFAULT_RUNS
-    assert args.output == benchmark.Path("benchmark_results")
+    assert args.output == benchmark.Path("index")
     assert args.format == "json"
     assert args.dry_run is False
     assert args.verbose is False
